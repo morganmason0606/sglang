@@ -16,7 +16,7 @@ OUTPUT_LEN=256
 RANGE_RATIO=0.5
 
 MAX_CONCURRENCY=4            # set to 4 or 16
-OUT_PREFIX="qwen32b_test"
+OUT_PREFIX="qwen32b"
 
 ###############################################
 # INTERNAL

@@ -21,7 +21,7 @@ MASTER_ADDR="10.0.0.1"   # used only if NNODES > 1
 MASTER_PORT="50000"
 
 # Nsight Systems config
-NSYS_TRACE="cuda"         # you can change to "cuda,nvtx,osrt" if stable
+NSYS_TRACE="cuda,nvtx,mpi"
 NSYS_OUT_PREFIX="qwen32b"
 
 ###############################################
@@ -29,11 +29,6 @@ NSYS_OUT_PREFIX="qwen32b"
 ###############################################
 
 export CUDA_VISIBLE_DEVICES
-
-EXTRA_FLAGS=(
-  "--disable-cuda-graph"
-  # leave out --enable-layerwise-nvtx-marker for now
-)
 
 DIST_FLAGS=()
 if [[ ${NNODES} -gt 1 ]]; then
@@ -79,5 +74,4 @@ nsys profile \
     --pipeline-parallel-size "${PP_SIZE}" \
     --host "${HOST}" \
     --port "${PORT}" \
-    "${DIST_FLAGS[@]}" \
-    "${EXTRA_FLAGS[@]}"
+    "${DIST_FLAGS[@]}"
