@@ -12,17 +12,17 @@ PORT="30000"
 CUDA_VISIBLE_DEVICES="0,1,2,3"
 
 TP_SIZE=4
-PP_SIZE=1          # for 2-node set to 2
+PP_SIZE=1
 
-NNODES=1           # 1 for single-node, 2 for two-node
+NNODES=1
 NODE_RANK=0
 
 MASTER_ADDR="10.0.0.1"   # used only if NNODES > 1
 MASTER_PORT="50000"
 
-# Nsight Systems config
-NSYS_TRACE="cuda,nvtx,mpi"
-NSYS_OUT_PREFIX="qwen32b"
+# Nsight Systems session name (must match benchmark.sh)
+NSYS_SESSION="sglang"
+NSYS_TRACE="cuda,nvtx,osrt"
 
 ###############################################
 # INTERNAL
@@ -40,34 +40,29 @@ if [[ ${NNODES} -gt 1 ]]; then
   )
 fi
 
-OUT_NAME="${NSYS_OUT_PREFIX}_n${NNODES}_tp${TP_SIZE}_pp${PP_SIZE}_rank${NODE_RANK}"
-
-echo "======== SGLang SERVER (nsys profile) ========"
-echo "MODEL_PATH      = ${MODEL_PATH}"
-echo "HOST:PORT       = ${HOST}:${PORT}"
+echo "======== SGLang SERVER (nsys launch interactive) ========"
+echo "MODEL_PATH        = ${MODEL_PATH}"
+echo "HOST:PORT         = ${HOST}:${PORT}"
 echo "CUDA_VISIBLE_DEVICES = ${CUDA_VISIBLE_DEVICES}"
-echo "TP_SIZE         = ${TP_SIZE}"
-echo "PP_SIZE         = ${PP_SIZE}"
-echo "NNODES          = ${NNODES}"
-echo "NODE_RANK       = ${NODE_RANK}"
-echo "MASTER_ADDR     = ${MASTER_ADDR}"
-echo "MASTER_PORT     = ${MASTER_PORT}"
-echo "NSYS_OUT        = ${OUT_NAME}.nsys-rep"
-echo "NSYS_TRACE      = ${NSYS_TRACE}"
-echo "=============================================="
-echo ">>> Run your benchmark while this server is up."
-echo ">>> When finished, Ctrl-C here to end profiling."
+echo "TP_SIZE           = ${TP_SIZE}"
+echo "PP_SIZE           = ${PP_SIZE}"
+echo "NNODES            = ${NNODES}"
+echo "NODE_RANK         = ${NODE_RANK}"
+echo "MASTER_ADDR       = ${MASTER_ADDR}"
+echo "MASTER_PORT       = ${MASTER_PORT}"
+echo "NSYS_SESSION      = ${NSYS_SESSION}"
+echo "========================================================"
+echo ">>> This terminal: SGLang server under 'nsys launch'."
+echo ">>> Other terminal: run benchmark.sh (it will nsys start/stop)."
 echo
 
 ###############################################
-# NSYS PROFILE AROUND SERVER
+# NSYS LAUNCH AROUND SERVER (INTERACTIVE)
 ###############################################
 
-nsys profile \
+nsys launch \
+  --session="${NSYS_SESSION}" \
   --trace="${NSYS_TRACE}" \
-  --sample=none \
-  --force-overwrite=true \
-  -o "${OUT_NAME}" \
   python -m sglang.launch_server \
     --model-path "${MODEL_PATH}" \
     --tensor-parallel-size "${TP_SIZE}" \
