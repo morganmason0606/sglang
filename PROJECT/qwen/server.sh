@@ -63,6 +63,9 @@ echo
 nsys launch \
   --session="${NSYS_SESSION}" \
   --trace="${NSYS_TRACE}" \
+  --trace-fork-before-exec=true \
+  --cuda-graph-trace=node \
+  --wait primary \
   python -m sglang.launch_server \
     --model-path "${MODEL_PATH}" \
     --tensor-parallel-size "${TP_SIZE}" \
