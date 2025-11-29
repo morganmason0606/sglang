@@ -22,7 +22,7 @@ MASTER_PORT="50000"
 
 # Nsight Systems session name (must match benchmark.sh)
 NSYS_SESSION="sglang"
-NSYS_TRACE="cuda,nvtx,osrt"
+NSYS_TRACE="cuda,cudnn,cublas,nvtx,osrt,mpi"
 
 ###############################################
 # INTERNAL
