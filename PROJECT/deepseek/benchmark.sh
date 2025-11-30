@@ -10,7 +10,7 @@ SERVER_PORT="30000"
 
 MODEL_ID="deepseek-ai/DeepSeek-V2-Lite"
 
-NUM_PROMPTS=256
+NUM_PROMPTS=32
 INPUT_LEN=1024
 OUTPUT_LEN=256
 RANGE_RATIO=0.5
@@ -21,6 +21,9 @@ OUT_PREFIX="deepseek"
 # Nsight Systems config
 NSYS_SESSION="sglang"        # must match server.sh
 NSYS_REPORT="${OUT_PREFIX}_c${MAX_CONCURRENCY}.nsys-rep"
+
+export SGLANG_TORCH_PROFILER_DIR="./torch_profil_dir" # must match server.sh
+
 
 ###############################################
 # INTERNAL
@@ -62,7 +65,9 @@ python -m sglang.bench_serving \
   --request-rate inf \
   --max-concurrency "${MAX_CONCURRENCY}" \
   --output-file "${OUT_FILE}" \
-  --output-details
+  --output-details \
+  --profile \
+> >(tee benchmark_stdout.log) 2> >(tee benchmark_stderr.log >&2)
 
 echo "stopping"
 # Stop collection once the benchmark is done

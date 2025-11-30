@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+export NCCL_DEBUG=INFO
+export NCCL_DEBUG_SUBSYS=ALL
+export NCCL_DEBUG_FILE="./nccl_debug_log_%p.txt"
+
+export SGLANG_TORCH_PROFILER_DIR="./torch_profil_dir"
 ###############################################
 # HARD-CODED CONFIG (EDIT THESE)
 ###############################################
@@ -12,13 +17,13 @@ PORT="30000"
 CUDA_VISIBLE_DEVICES="0,1,2,3"
 
 TP_SIZE=4
-EP_SIZE=4
+EP_SIZE=2
 
 
 
 # Nsight Systems session name (must match benchmark.sh)
 NSYS_SESSION="sglang"
-NSYS_TRACE="cuda,cudnn,cublas,nvtx,osrt,mpi"
+NSYS_TRACE="cuda,nvtx,osrt,mpi,ucx"
 
 ###############################################
 # INTERNAL
@@ -43,13 +48,17 @@ echo
 # NSYS LAUNCH AROUND SERVER (INTERACTIVE)
 ###############################################
 
+
 nsys launch \
   --session="${NSYS_SESSION}" \
   --trace="${NSYS_TRACE}" \
   --trace-fork-before-exec=true \
+  --cuda-graph-trace=node \
   python -m sglang.launch_server \
     --model-path "${MODEL_PATH}" \
     --tensor-parallel-size "${TP_SIZE}" \
     --expert-parallel-size "${EP_SIZE}" \
     --host "${HOST}" \
     --port "${PORT}" \
+    --enable-profile-cuda-graph \
+ > >(tee server_stdout.log) 2> >(tee server_stderr.log >&2)
