@@ -17,7 +17,7 @@ OUTPUT_LEN=256
 RANGE_RATIO=0.5
 
 MAX_CONCURRENCY=4
-OUT_PREFIX="deepseek"
+OUT_PREFIX="llama"
 
 # Nsight Systems config
 NSYS_SESSION="sglang"        # must match server.sh
