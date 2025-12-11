@@ -62,4 +62,5 @@ nsys launch \
     --host "${HOST}" \
     --port "${PORT}" \
     --enable-profile-cuda-graph \
+    --enable-layerwise-nvtx-marker \
  > >(tee server_stdout.log) 2> >(tee server_stderr.log >&2)
