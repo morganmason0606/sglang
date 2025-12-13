@@ -13,13 +13,14 @@ export NCCL_DEBUG_FILE="./nccl_debug_log_%p.txt"
 # export SGLANG_TORCH_PROFILER_DIR="./torch_profil_dir"
 
 # Nsight Systems in your home directory
+export PATH="$HOME/nsight-systems-2025.5.1/bin:$PATH"
 
 ###############################################
 # HARD-CODED CONFIG (EDIT THESE)
 ###############################################
 
 # Local path to the HF-converted model
-MODEL_PATH="Qwen/Qwen3-32B"
+MODEL_PATH="/pscratch/sd/f/fsv5/models/Llama-3.1-8B"
 
 # Server listen address / port
 HOST="0.0.0.0"
@@ -29,13 +30,13 @@ PORT="30000"
 CUDA_VISIBLE_DEVICES="0,1,2,3"
 
 # Parallelism
-TP_SIZE=4          # tensor parallel size
-PP_SIZE=1          # pipeline parallel size
+TP_SIZE=1          # tensor parallel size
+PP_SIZE=4          # pipeline parallel size
 
 # Nsight Systems config
-NSYS_SESSION="qwen_tp${TP_SIZE}_pp${PP_SIZE}"
+NSYS_SESSION="llama_tp${TP_SIZE}_pp${PP_SIZE}"
 NSYS_OUTPUT="./${NSYS_SESSION}"
-NSYS_TRACE="cuda,nvtx"
+NSYS_TRACE="cuda,nvtx,osrt"
 
 ###############################################
 # INTERNAL
@@ -67,4 +68,5 @@ nsys profile \
     --port "${PORT}" \
     --attention-backend torch_native \
     --disable-cuda-graph \
+    --enable-layerwise-nvtx-marker \
   > >(tee server_stdout.log) 2> >(tee server_stderr.log >&2)

@@ -7,8 +7,9 @@ set -euo pipefail
 
 SERVER_HOST="127.0.0.1"
 SERVER_PORT="30000"
+export PATH="$HOME/nsight-systems-2025.5.1/bin:$PATH"
 
-MODEL_ID="Qwen/Qwen3-32B"
+MODEL_ID="/pscratch/sd/f/fsv5/models/Llama-3.1-8B"
 
 NUM_PROMPTS=32
 INPUT_LEN=1024
@@ -16,7 +17,7 @@ OUTPUT_LEN=256
 RANGE_RATIO=0.5   # fine to leave as-is if you want variable lengths
 
 MAX_CONCURRENCY=4
-OUT_PREFIX="qwen"
+OUT_PREFIX="llama"
 
 # You can keep these vars, but we won't actually use nsys here
 NSYS_SESSION="sglang"        
