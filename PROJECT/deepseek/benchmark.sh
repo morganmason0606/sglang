@@ -5,6 +5,8 @@ set -euo pipefail
 # HARD-CODED CONFIG (EDIT THESE)
 ###############################################
 
+EP_SIZE=$1
+
 SERVER_HOST="127.0.0.1"
 SERVER_PORT="30000"
 
@@ -16,13 +18,13 @@ OUTPUT_LEN=256
 RANGE_RATIO=0.5
 
 MAX_CONCURRENCY=4
-OUT_PREFIX="deepseek"
+OUT_PREFIX="deepseek_ep${EP_SIZE}"
 
 # Nsight Systems config
 NSYS_SESSION="sglang"        # must match server.sh
 NSYS_REPORT="${OUT_PREFIX}_c${MAX_CONCURRENCY}.nsys-rep"
 
-export SGLANG_TORCH_PROFILER_DIR="./torch_profil_dir" # must match server.sh
+export SGLANG_TORCH_PROFILER_DIR="./ep_${EP_SIZE}_torch_profile_dir" # must match server.sh
 
 
 ###############################################
@@ -50,7 +52,7 @@ nsys start \
   --session="${NSYS_SESSION}" \
   --sample=none \
   -o "${NSYS_REPORT}" \
-  --force-overwrite=true
+  --force-overwrite=true \
 
 python -m sglang.bench_serving \
   --backend sglang \
@@ -67,8 +69,9 @@ python -m sglang.bench_serving \
   --output-file "${OUT_FILE}" \
   --output-details \
   --profile \
-> >(tee benchmark_stdout.log) 2> >(tee benchmark_stderr.log >&2)
+> >(tee "benchmark_${EP_SIZE}_stdout.log") 2> >(tee "benchmark_${EP_SIZE}_stderr.log" >&2)
 
 echo "stopping"
 # Stop collection once the benchmark is done
 nsys stop --session="${NSYS_SESSION}"
+

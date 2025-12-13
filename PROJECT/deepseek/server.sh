@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+EP_SIZE=$1
+
 export NCCL_DEBUG=INFO
 export NCCL_DEBUG_SUBSYS=ALL
-export NCCL_DEBUG_FILE="./nccl_debug_log_%p.txt"
+export NCCL_DEBUG_FILE="./ep_${EP_SIZE}_nccl_debug_log_%p.txt"
 
-export SGLANG_TORCH_PROFILER_DIR="./torch_profil_dir"
+export SGLANG_TORCH_PROFILER_DIR="./ep_${EP_SIZE}_torch_profile_dir"
+mkdir -p $SGLANG_TORCH_PROFILER_DIR
 ###############################################
 # HARD-CODED CONFIG (EDIT THESE)
 ###############################################
@@ -17,13 +20,12 @@ PORT="30000"
 CUDA_VISIBLE_DEVICES="0,1,2,3"
 
 TP_SIZE=4
-EP_SIZE=2
 
 
 
 # Nsight Systems session name (must match benchmark.sh)
 NSYS_SESSION="sglang"
-NSYS_TRACE="cuda,nvtx,osrt,mpi,ucx"
+NSYS_TRACE="cuda,nvtx,mpi"
 
 ###############################################
 # INTERNAL
@@ -61,4 +63,5 @@ nsys launch \
     --host "${HOST}" \
     --port "${PORT}" \
     --enable-profile-cuda-graph \
- > >(tee server_stdout.log) 2> >(tee server_stderr.log >&2)
+    --enable-layerwise-nvtx-marker \
+> >(tee "server_${EP_SIZE}_stdout.log") 2> >(tee "server_${EP_SIZE}_stderr.log" >&2)
